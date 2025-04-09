@@ -48,8 +48,9 @@ This program, [`process-run.py`](process-run.py), allows you to see how process 
       - **Total Time:** 10  
       - **CPU Busy:** 10 (100.00%)  
       - **IO Busy:** 0 (0.00%)  
-      <br>
-      ![CPU-vs-I/O](./img/1/cpu-vs-io.png)
+      <br><br>
+      ![CPU-VS-I/O](./img/1/cpu-vs-io.png)
+      <br><br>
    </details>
    <br>
 
@@ -115,6 +116,7 @@ This program, [`process-run.py`](process-run.py), allows you to see how process 
 
    <br><br>
    ![CPU-VS-I/O](./img/3/cpu-vs-io.png)
+   <br><br>
    </details>
    <br>
 
@@ -122,7 +124,31 @@ This program, [`process-run.py`](process-run.py), allows you to see how process 
 
    <details>
    <summary>Answer</summary>
-   Coloque aqui su respuerta
+   Given the behavior defined by SWITCH ON END and the process list, even if the process that performs a single I/O call is executed first, the cost will be the same as if the CPU-only process were executed first. This results in a longer time required to complete both processes, in addition to wasting CPU usage based on the available time.
+   <br><br>
+
+      | Time | PID: 0         | PID: 1           | CPU Busy | IO Busy |
+      |------|-----------------|------------------|----------|---------|
+      | 1    | RUN:io         | READY            | 1        | 0       |
+      | 2    | BLOCKED        | READY            | 0        | 1       |
+      | 3    | BLOCKED        | READY            | 0        | 1       |
+      | 4    | BLOCKED        | READY            | 0        | 1       |
+      | 5    | BLOCKED        | READY            | 0        | 1       |
+      | 6    | BLOCKED        | READY            | 0        | 1       |
+      | 7    | RUN:io_done    | READY            | 1        | 0       |
+      | 8    | DONE           | RUN:cpu          | 1        | 0       |
+      | 9    | DONE           | RUN:cpu          | 1        | 0       |
+      | 10   | DONE           | RUN:cpu          | 1        | 0       |
+      | 11   | DONE           | RUN:cpu          | 1        | 0       |
+
+      #### Estadísticas
+      - **Total Time:** **11** unidades de tiempo.
+      - **CPU Busy:** **6** unidades (54.55%).
+      - **IO Busy:** **5** unidades (45.45%).
+
+      <br><br>
+      ![CPU-VS-I/O](./img/4/cpu-vs-io.png)
+      <br><br>
    </details>
    <br>
 
@@ -130,7 +156,27 @@ This program, [`process-run.py`](process-run.py), allows you to see how process 
 
    <details>
    <summary>Answer</summary>
-   Coloque aqui su respuerta
+   In this case, the behavior defined by the SWITCH_ON_IO instruction is equivalent to the second case, as it specifies that the system will switch to another process when one is executing an input/output (I/O) instruction. With the same two processes running, the total time required to complete them is 7 units.<br><br>
+
+   This model allows for better CPU utilization based on the available time. Furthermore, with a larger number of processes, the efficiency improvement would be more significant.<br><br>
+   
+      | Time | PID: 0         | PID: 1           | CPU Busy | IO Busy |
+      |------|-----------------|------------------|----------|---------|
+      | 1    | RUN:io         | READY            | 1        | 0       |
+      | 2    | BLOCKED        | RUN:cpu          | 1        | 1       |
+      | 3    | BLOCKED        | RUN:cpu          | 1        | 1       |
+      | 4    | BLOCKED        | RUN:cpu          | 1        | 1       |
+      | 5    | BLOCKED        | RUN:cpu          | 1        | 1       |
+      | 6    | BLOCKED        | DONE             | 0        | 1       |
+      | 7    | RUN:io_done    | DONE             | 1        | 0       |
+
+      #### Estadísticas
+      - **Total Time:** **7** unidades de tiempo.
+      - **CPU Busy:** **6** unidades (85.71%).
+      - **IO Busy:** **5** unidades (71.43%).
+      <br><br>
+      ![CPU-VS-I/O](./img/5/cpu-vs-io.png)
+      <br><br>
    </details>
    <br>
 
@@ -138,15 +184,97 @@ This program, [`process-run.py`](process-run.py), allows you to see how process 
 
    <details>
    <summary>Answer</summary>
-   Coloque aqui su respuerta
+   In this specific case, as described for the IO_RUN_LATER parameter and based on the process list, the following happens: first, process 0 executes its first I/O instruction, which causes it to enter the BLOCKED state. While process 0 is in this state and the CPU is free, process 1's instructions, which are CPU-only (5 instructions), begin executing.<br><br>
+
+   When process 0 completes its I/O instruction, it is not executed immediately, but moves to the end of the queue in the READY state. It can only execute again when all the processes ahead in the queue have finished. In this case, this means that it cannot execute another I/O instruction until the other processes finish.<br><br>
+
+   Finally, when process 0 can execute its instructions again, since the other processes (which only have CPU-only instructions) have already finished, each time it enters the BLOCKED state, the CPU is left unused. This results in a waste of available resources and reduced performance in terms of time efficiency.
+   <br><br>
+
+   | Time | PID: 0         | PID: 1           | PID: 2           | PID: 3           | CPU Busy | IO Busy |
+   |------|-----------------|------------------|------------------|------------------|----------|---------|
+   | 1    | RUN:io         | READY            | READY            | READY            | 1        | 0       |
+   | 2    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+   | 3    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+   | 4    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+   | 5    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+   | 6    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+   | 7    | READY          | DONE             | RUN:cpu          | READY            | 1        | 0       |
+   | 8    | READY          | DONE             | RUN:cpu          | READY            | 1        | 0       |
+   | 9    | READY          | DONE             | RUN:cpu          | READY            | 1        | 0       |
+   | 10   | READY          | DONE             | RUN:cpu          | READY            | 1        | 0       |
+   | 11   | READY          | DONE             | RUN:cpu          | READY            | 1        | 0       |
+   | 12   | READY          | DONE             | DONE             | RUN:cpu          | 1        | 0       |
+   | 13   | READY          | DONE             | DONE             | RUN:cpu          | 1        | 0       |
+   | 14   | READY          | DONE             | DONE             | RUN:cpu          | 1        | 0       |
+   | 15   | READY          | DONE             | DONE             | RUN:cpu          | 1        | 0       |
+   | 16   | READY          | DONE             | DONE             | RUN:cpu          | 1        | 0       |
+   | 17   | RUN:io_done    | DONE             | DONE             | DONE             | 1        | 0       |
+   | 18   | RUN:io         | DONE             | DONE             | DONE             | 1        | 0       |
+   | 19   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 20   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 21   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 22   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 23   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 24   | RUN:io_done    | DONE             | DONE             | DONE             | 1        | 0       |
+   | 25   | RUN:io         | DONE             | DONE             | DONE             | 1        | 0       |
+   | 26   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 27   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 28   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 29   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 30   | BLOCKED        | DONE             | DONE             | DONE             | 0        | 1       |
+   | 31   | RUN:io_done    | DONE             | DONE             | DONE             | 1        | 0       |
+
+   #### Estadísticas
+   - **Total Time:** **31** unidades de tiempo.
+   - **CPU Busy:** **21** unidades (67.74%).
+   - **IO Busy:** **15** unidades (48.39%).
+   <br><br>
+   ![CPU-VS-I/O](./img/6/cpu-vs-io.png)
+   <br><br>
    </details>
    <br>
 
 7. Now run the same processes, but with `-I IO RUN IMMEDIATE` set, which immediately runs the process that issued the I/O. How does this behavior differ? Why might running a process that just completed an I/O again be a good idea?
 
    <details>
-   <summary>Answer</summary>
-   Coloque aqui su respuerta
+   <summary>Answer</summary>   
+   In this case, the main difference lies in the behavior defined by the IO_RUN_IMMEDIATE parameter. When a process completes an input/output (I/O) instruction, it immediately proceeds to execute the next instruction on the CPU, without having to wait in the READY process queue. This allows process 0, which has multiple I/O instructions, to execute immediately each time it completes an instruction. <br><br>
+
+   While process 0 is in the BLOCKED state, other processes can take advantage of the CPU availability to execute their own instructions. This results in more efficient CPU utilization, significantly reducing the total time required to complete all processes. This behavior improves resource utilization.
+   <br><br>
+
+      | Time | PID: 0         | PID: 1           | PID: 2           | PID: 3           | CPU Busy | IO Busy |
+      |------|-----------------|------------------|------------------|------------------|----------|---------|
+      | 1    | RUN:io         | READY            | READY            | READY            | 1        | 0       |
+      | 2    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+      | 3    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+      | 4    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+      | 5    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+      | 6    | BLOCKED        | RUN:cpu          | READY            | READY            | 1        | 1       |
+      | 7    | RUN:io_done    | DONE             | READY            | READY            | 1        | 0       |
+      | 8    | RUN:io         | DONE             | READY            | READY            | 1        | 0       |
+      | 9    | BLOCKED        | DONE             | RUN:cpu          | READY            | 1        | 1       |
+      | 10   | BLOCKED        | DONE             | RUN:cpu          | READY            | 1        | 1       |
+      | 11   | BLOCKED        | DONE             | RUN:cpu          | READY            | 1        | 1       |
+      | 12   | BLOCKED        | DONE             | RUN:cpu          | READY            | 1        | 1       |
+      | 13   | BLOCKED        | DONE             | RUN:cpu          | READY            | 1        | 1       |
+      | 14   | RUN:io_done    | DONE             | DONE             | READY            | 1        | 0       |
+      | 15   | RUN:io         | DONE             | DONE             | READY            | 1        | 0       |
+      | 16   | BLOCKED        | DONE             | DONE             | RUN:cpu          | 1        | 1       |
+      | 17   | BLOCKED        | DONE             | DONE             | RUN:cpu          | 1        | 1       |
+      | 18   | BLOCKED        | DONE             | DONE             | RUN:cpu          | 1        | 1       |
+      | 19   | BLOCKED        | DONE             | DONE             | RUN:cpu          | 1        | 1       |
+      | 20   | BLOCKED        | DONE             | DONE             | RUN:cpu          | 1        | 1       |
+      | 21   | RUN:io_done    | DONE             | DONE             | DONE             | 1        | 0       |
+
+      #### Estadísticas
+      - **Total Time:** **21** unidades de tiempo.
+      - **CPU Busy:** **21** unidades (100.00%).
+      - **IO Busy:** **15** unidades (71.43%).
+      <br><br>
+      ![CPU-VS-I/O](./img/7/cpu-vs-io.png)
+      <br><br>
    </details>
    <br>
 
