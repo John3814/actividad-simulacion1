@@ -3,7 +3,6 @@
 | Integrante                   | correo                   | usuario github          |
 | ---------------------------- | ------------------------ | ----------------------- |
 | John Edison Zapata Ramirez   | john.zapata1@udea.edu.co | John3814                |
-| Nombre completo integrante 2 | correo integrante 2      | gihub user integrante 2 |
 
 ## Instrucciones
 
